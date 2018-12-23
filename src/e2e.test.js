@@ -20,6 +20,20 @@ describe('Bookish', () => {
 
     expect(result).toEqual('Bookish')
   })
+
+  test('Book List', async () => {
+    await page.goto(`${appUrlBase}/`)
+    await page.waitForSelector('.books')
+    const books = await page.evaluate(() => {
+      return [...document.querySelectorAll('.book .title')].map(
+        (el) => el.innerText
+      )
+    })
+
+    expect(books.length).toEqual(2)
+    expect(books[0]).toEqual('Refactoring')
+    expect(books[1]).toEqual('Domain-driven design')
+  })
 })
 
 afterAll(() => {
