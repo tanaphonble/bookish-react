@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
 function BookList({ error, loading, books }) {
@@ -21,6 +22,13 @@ function BookList({ error, loading, books }) {
       ))}
     </div>
   )
+}
+
+BookList.propTypes = {
+  book: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired
+  })
 }
 
 export default BookList
