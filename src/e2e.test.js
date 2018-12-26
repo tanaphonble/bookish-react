@@ -2,7 +2,7 @@ import pupeeteer from 'puppeteer'
 import axios from 'axios'
 
 const appUrlBase = 'http://localhost:3000'
-const apiUrlBase = 'http://localhost:8080'
+const apiUrlBase = process.env.REACT_APP_API_URL_BASE
 
 let browser
 let page

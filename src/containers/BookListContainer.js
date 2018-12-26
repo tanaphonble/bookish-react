@@ -12,7 +12,7 @@ class BookListContainer extends Component {
 
   componentDidMount() {
     axios
-      .get('http://localhost:8080/books?_sort=id')
+      .get(`${process.env.REACT_APP_API_URL_BASE}/books?_sort=id`)
       .then((res) => {
         this.setState({
           books: res.data,

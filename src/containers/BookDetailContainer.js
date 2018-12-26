@@ -9,8 +9,7 @@ class BookDetailContainer extends Component {
 
   componentDidMount() {
     const id = this.props.match.params.id
-    console.log('book id', this.props.match.params.id)
-    axios.get(`http://localhost:8080/books/${id}`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL_BASE}/books/${id}`).then((res) => {
       this.setState({
         book: res.data
       })
