@@ -1,6 +1,14 @@
 import React from 'react'
 
-function BookList({ books }) {
+function BookList({ error, loading, books }) {
+  if (error) {
+    return <div className="error" />
+  }
+
+  if (loading) {
+    return <div className="loading" />
+  }
+
   return (
     <div className="books">
       {books.map((book, index) => (
