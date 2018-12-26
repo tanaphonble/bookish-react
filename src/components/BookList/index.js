@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
 function BookList({ error, loading, books }) {
@@ -14,10 +15,20 @@ function BookList({ error, loading, books }) {
       {books.map((book, index) => (
         <div key={`${book.name}_${index}`} className="book">
           <h2 className="title">{book.name}</h2>
+          <a href={`/books/${book.id}`} className="view-detail">
+            View Detail
+          </a>
         </div>
       ))}
     </div>
   )
+}
+
+BookList.propTypes = {
+  book: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired
+  })
 }
 
 export default BookList
