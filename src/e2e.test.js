@@ -14,8 +14,8 @@ beforeAll(async () => {
 
 beforeEach(() => {
   const books = [
-    { name: 'Refactoring', id: 1 },
-    { name: 'Domain-driven design', id: 2 }
+    { name: 'Refactoring', description: 'Refactoring', id: 1 },
+    { name: 'Domain-driven design', description: 'Domain-driven design', id: 2 }
   ]
 
   return books.map((item) =>
@@ -48,6 +48,31 @@ describe('Bookish', () => {
     expect(books.length).toEqual(2)
     expect(books[0]).toEqual('Refactoring')
     expect(books[1]).toEqual('Domain-driven design')
+  })
+
+  test('Goto book detail page', async () => {
+    await page.goto(`${appUrlBase}/`)
+    await page.waitForSelector('a.view-detail')
+
+    const links = await page.evaluate(() => {
+      return [...document.querySelectorAll('a.view-detail')].map((el) =>
+        el.getAttribute('href')
+      )
+    })
+
+    await Promise.all([
+      page.waitForNavigation({ waituntil: 'networkidle2' }),
+      page.goto(`${appUrlBase}${links[0]}`)
+    ])
+
+    const url = await page.evaluate('location.href')
+    expect(url).toEqual(`${appUrlBase}/books/1`)
+
+    await page.waitForSelector('.description')
+    const result = await page.evaluate(() => {
+      return document.querySelector('.description').innerText
+    })
+    expect(result).toEqual('Refactoring')
   })
 })
 
