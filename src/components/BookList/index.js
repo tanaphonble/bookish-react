@@ -12,8 +12,8 @@ function BookList({ error, loading, books }) {
 
   return (
     <div className="books">
-      {books.map((book, index) => (
-        <div key={`${book.name}_${index}`} className="book">
+      {books.map((book) => (
+        <div key={`${book.id}`} className="book">
           <h2 className="title">{book.name}</h2>
           <a href={`/books/${book.id}`} className="view-detail">
             View Detail
