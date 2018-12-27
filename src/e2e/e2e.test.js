@@ -2,6 +2,7 @@ import pupeeteer from 'puppeteer'
 import axios from 'axios'
 
 import BookListPage from './pages/BookListPage'
+import BookDetailPage from './pages/BookDetailPage';
 
 const appUrlBase = 'http://localhost:3000'
 const apiUrlBase = process.env.REACT_APP_API_URL_BASE
@@ -42,7 +43,6 @@ describe('Bookish', () => {
 
   test('Book List', async () => {
     await page.goto(`${appUrlBase}/`)
-
     const listPage = new BookListPage(page)
     const books = await listPage.getBooks()
 
@@ -53,13 +53,8 @@ describe('Bookish', () => {
 
   test('Goto book detail page', async () => {
     await page.goto(`${appUrlBase}/`)
-    await page.waitForSelector('a.view-detail')
-
-    const links = await page.evaluate(() => {
-      return [...document.querySelectorAll('a.view-detail')].map((el) =>
-        el.getAttribute('href')
-      )
-    })
+    const listPage = new BookListPage(page)
+    const links = await listPage.getBookDetailLinks()
 
     await Promise.all([
       page.waitForNavigation({ waituntil: 'networkidle2' }),
@@ -69,24 +64,15 @@ describe('Bookish', () => {
     const url = await page.evaluate('location.href')
     expect(url).toEqual(`${appUrlBase}/books/1`)
 
-    await page.waitForSelector('.description')
-    const result = await page.evaluate(() => {
-      return document.querySelector('.description').innerText
-    })
-    expect(result).toEqual('Refactoring')
+    const detailPage = new BookDetailPage(page)
+    const description = await detailPage.getDescription()
+    expect(description).toEqual('Refactoring')
   })
 
   test('Show books which name contains keyword', async () => {
     await page.goto(`${appUrlBase}/`)
-    await page.waitForSelector('input')
-    await page.type('input.search', 'domain')
-    await page.screenshot({ path: 'search-for-design.png' })
-    await page.waitForSelector('.book .title')
-    const books = await page.evaluate(() => {
-      return [...document.querySelectorAll('.book .title')].map(
-        (el) => el.innerText
-      )
-    })
+    const listPage = new BookListPage(page)
+    const books = await listPage.getBooksByTitle('domain')
 
     expect(books.length).toEqual(1)
     expect(books[0]).toEqual('Domain-driven design')
