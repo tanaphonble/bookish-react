@@ -10,18 +10,23 @@ let page
 beforeAll(async () => {
   browser = await pupeeteer.launch({})
   page = await browser.newPage()
-})
 
-beforeEach(() => {
   const books = [
     { name: 'Refactoring', description: 'Refactoring', id: 1 },
-    { name: 'Domain-driven design', description: 'Domain-driven design', id: 2 }
+    {
+      name: 'Domain-driven design',
+      description: 'Domain-driven design',
+      id: 2
+    }
   ]
 
-  return books.map((item) =>
-    axios.post(`${apiUrlBase}/books?_sort=id`, item, {
-      headers: { 'Content-Type': 'application/json' }
-    })
+  await Promise.all(
+    books.map(
+      async (item) =>
+        await axios.post(`${apiUrlBase}/books`, item, {
+          headers: { 'Content-Type': 'application/json' }
+        })
+    )
   )
 })
 
@@ -74,19 +79,30 @@ describe('Bookish', () => {
     })
     expect(result).toEqual('Refactoring')
   })
+
+  test('Show books which name contains keyword', async () => {
+    await page.goto(`${appUrlBase}/`)
+    await page.waitForSelector('input')
+    await page.type('input.search', 'domain')
+    await page.screenshot({ path: 'search-for-design.png' })
+    await page.waitForSelector('.book .title')
+      const books = await page.evaluate(() => {
+        return [...document.querySelectorAll('.book .title')].map(
+          (el) => el.innerText
+        )
+      })
+
+      expect(books.length).toEqual(1)
+      expect(books[0]).toEqual('Domain-driven design')
+  })
 })
 
-afterEach(async () => {
-  const { data: books } = await axios.get(`${apiUrlBase}/books`)
-  Promise.all(
+afterAll(async () => {
+  const { data: books } = await axios.get(`${apiUrlBase}/books?_sort=id`)
+  await Promise.all(
     books.map(
       async (item) => await axios.delete(`${apiUrlBase}/books/${item.id}`)
     )
   )
-
-  return axios.delete(`${apiUrlBase}/books?_cleanup=true`).catch((err) => err)
-})
-
-afterAll(() => {
   browser.close()
 })
