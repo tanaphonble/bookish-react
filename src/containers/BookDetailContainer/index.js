@@ -12,7 +12,7 @@ class BookDetailContainer extends Component {
     axios
       .get(`${process.env.REACT_APP_API_URL_BASE}/books/${id}`)
       .then((res) => {
-        this.setState({
+         this.setState({
           book: res.data
         })
       })

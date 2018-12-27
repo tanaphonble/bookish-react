@@ -1,6 +1,8 @@
 import pupeeteer from 'puppeteer'
 import axios from 'axios'
 
+import BookListPage from './pages/BookListPage'
+
 const appUrlBase = 'http://localhost:3000'
 const apiUrlBase = process.env.REACT_APP_API_URL_BASE
 
@@ -33,22 +35,16 @@ beforeAll(async () => {
 describe('Bookish', () => {
   test('Heading', async () => {
     await page.goto(`${appUrlBase}/`)
-    await page.waitForSelector('h1')
-    const result = await page.evaluate(() => {
-      return document.querySelector('h1').innerText
-    })
-
-    expect(result).toEqual('Bookish')
+    const listPage = new BookListPage(page)
+    const heading = await listPage.getHeading()
+    expect(heading).toEqual('Bookish')
   })
 
   test('Book List', async () => {
     await page.goto(`${appUrlBase}/`)
-    await page.waitForSelector('.books')
-    const books = await page.evaluate(() => {
-      return [...document.querySelectorAll('.book .title')].map(
-        (el) => el.innerText
-      )
-    })
+
+    const listPage = new BookListPage(page)
+    const books = await listPage.getBooks()
 
     expect(books.length).toEqual(2)
     expect(books[0]).toEqual('Refactoring')
@@ -86,14 +82,14 @@ describe('Bookish', () => {
     await page.type('input.search', 'domain')
     await page.screenshot({ path: 'search-for-design.png' })
     await page.waitForSelector('.book .title')
-      const books = await page.evaluate(() => {
-        return [...document.querySelectorAll('.book .title')].map(
-          (el) => el.innerText
-        )
-      })
+    const books = await page.evaluate(() => {
+      return [...document.querySelectorAll('.book .title')].map(
+        (el) => el.innerText
+      )
+    })
 
-      expect(books.length).toEqual(1)
-      expect(books[0]).toEqual('Domain-driven design')
+    expect(books.length).toEqual(1)
+    expect(books[0]).toEqual('Domain-driven design')
   })
 })
 
