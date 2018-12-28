@@ -7,13 +7,6 @@ import SearchBox from '../../components/SearchBox'
 import { fetchBooks, setSearchTerm } from '../actions'
 
 export class BookListContainer extends Component {
-  state = {
-    books: [],
-    loading: true,
-    error: null,
-    term: ''
-  }
-
   componentDidMount() {
     this.props.fetchBooks()
   }
@@ -26,8 +19,8 @@ export class BookListContainer extends Component {
   render() {
     return (
       <div>
-        <SearchBox onChange={this.filterBook} term={this.state.term} />
-        <BookList {...this.state} />
+        <SearchBox onChange={this.filterBook} term={this.props.term} />
+        <BookList {...this.props} />
       </div>
     )
   }
