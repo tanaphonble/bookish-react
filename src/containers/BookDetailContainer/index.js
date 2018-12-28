@@ -1,26 +1,33 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import BookDetail from '../../components/BookDetail'
+import { fetchABook } from '../actions'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
-class BookDetailContainer extends Component {
-  state = {
-    book: {}
-  }
-
+export class BookDetailContainer extends Component {
   componentDidMount() {
     const id = this.props.match.params.id
-    axios
-      .get(`${process.env.REACT_APP_API_URL_BASE}/books/${id}`)
-      .then((res) => {
-         this.setState({
-          book: res.data
-        })
-      })
+    this.props.fetchABook(id)
   }
 
   render() {
-    return <BookDetail {...this.state} />
+    return <BookDetail {...this.props} />
   }
 }
 
-export default BookDetailContainer
+const mapStateToProps = (state) => ({
+  book: state.list.current
+})
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      fetchABook
+    },
+    dispatch
+  )
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BookDetailContainer)

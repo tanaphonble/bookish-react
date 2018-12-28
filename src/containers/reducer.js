@@ -1,7 +1,9 @@
 import * as types from './types'
 
 const initialState = {
-  term: ''
+  term: '',
+  books: [],
+  current: {}
 }
 
 export default (state = initialState, action) => {
@@ -21,6 +23,18 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         books: action.payload
+      }
+    case types.FETCH_BOOKS_FAILED:
+      return {
+        ...state,
+        loading: false,
+        error: action.error
+      }
+    case types.FETCH_BOOK_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        current: action.payload
       }
     default:
       return state

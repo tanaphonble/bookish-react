@@ -19,4 +19,16 @@ describe('Reducer', () => {
 
     expect(state.loading).toBeTruthy()
   })
+
+  it('Show error when request failed', () => {
+    const initialState = {}
+
+    const action = {
+      type: types.FETCH_BOOKS_FAILED,
+      error: 'Something went wrong'
+    }
+    const state = reducer(initialState, action)
+
+    expect(state.error).toEqual('Something went wrong')
+  })
 })

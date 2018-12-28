@@ -31,4 +31,17 @@ describe('BookListContainer', () => {
     expect(props.setSearchTerm).toHaveBeenCalledWith('domain')
     expect(props.fetchBooks).toHaveBeenCalled()
   })
+
+  // it('Fetch book by id', () => {
+  //   const book = { id: 1, name: 'Refactoring' }
+  //   axios.get = jest
+  //     .fn()
+  //     .mockImplementation(() => Promise.resolve({ data: book }))
+
+  //   const store = mockStore({ list: { books: [], term: '' } })
+
+  //   return store.dispatch(fetchABooks(1)).then(() => {
+  //     expect(axios.get).toHaveBeenCalledWith('http://localhost:8080/books/1')
+  //   })
+  // })
 })
