@@ -2,38 +2,33 @@ import pupeeteer from 'puppeteer'
 import axios from 'axios'
 
 import BookListPage from './pages/BookListPage'
-import BookDetailPage from './pages/BookDetailPage';
+import BookDetailPage from './pages/BookDetailPage'
+import { resolve } from 'dns'
 
 const appUrlBase = 'http://localhost:3000'
-const apiUrlBase = process.env.REACT_APP_API_URL_BASE
 
 let browser
 let page
 
-beforeAll(async () => {
-  browser = await pupeeteer.launch({})
-  page = await browser.newPage()
-
-  const books = [
-    { name: 'Refactoring', description: 'Refactoring', id: 1 },
-    {
-      name: 'Domain-driven design',
-      description: 'Domain-driven design',
-      id: 2
-    }
-  ]
-
-  await Promise.all(
-    books.map(
-      async (item) =>
-        await axios.post(`${apiUrlBase}/books`, item, {
-          headers: { 'Content-Type': 'application/json' }
-        })
-    )
-  )
-})
-
 describe('Bookish', () => {
+  beforeAll(async () => {
+    browser = await pupeeteer.launch({})
+    page = await browser.newPage()
+  })
+
+  beforeEach(async () => {
+    const books = [
+      { name: 'Refactoring', id: 1 },
+      { name: 'Domain-driven design', id: 2 }
+    ]
+
+    return books.map((item) =>
+      axios.post('http://localhost:8080/books', item, {
+        headers: { 'Content-Type': 'application/json' }
+      })
+    )
+  })
+
   test('Heading', async () => {
     await page.goto(`${appUrlBase}/`)
     const listPage = new BookListPage(page)
@@ -57,7 +52,7 @@ describe('Bookish', () => {
     const links = await listPage.getBookDetailLinks()
 
     await Promise.all([
-      page.waitForNavigation({ waituntil: 'networkidle2' }),
+      page.waitForNavigation({ waitUntil: 'networkidle2' }),
       page.goto(`${appUrlBase}${links[0]}`)
     ])
 
@@ -72,19 +67,69 @@ describe('Bookish', () => {
   test('Show books which name contains keyword', async () => {
     await page.goto(`${appUrlBase}/`)
     const listPage = new BookListPage(page)
-    const books = await listPage.getBooksByTitle('domain')
+    const books = await listPage.getBooksByTitle('refact')
 
     expect(books.length).toEqual(1)
-    expect(books[0]).toEqual('Domain-driven design')
+    expect(books[0]).toEqual('Refactoring')
   })
-})
 
-afterAll(async () => {
-  const { data: books } = await axios.get(`${apiUrlBase}/books?_sort=id`)
-  await Promise.all(
-    books.map(
-      async (item) => await axios.delete(`${apiUrlBase}/books/${item.id}`)
+  test('Write a review for a book', async () => {
+    await page.goto(`${appUrlBase}/`)
+    await page.waitForSelector('a.view-detail')
+
+    const links = await page.evaluate(() => {
+      return [...document.querySelectorAll('a.view-detail')].map((el) =>
+        el.getAttribute('href')
+      )
+    })
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2' }),
+      page.goto(`${appUrlBase}${links[0]}`)
+    ])
+
+    const url = await page.evaluate('location.href')
+    expect(url).toEqual(`${appUrlBase}/books/1`)
+
+    await page.waitForSelector('.description')
+    const result = await page.evaluate(() => {
+      return document.querySelector('.description').innerText
+    })
+    expect(result).toEqual('Refactoring')
+
+    await page.waitForSelector('input[name="name"]')
+    await page.type('input[name="name"]', 'Ble')
+
+    await page.waitForSelector('textarea[name="content"]')
+    await page.type('textarea[name="content"]', 'Good book')
+
+    await page.waitForSelector('button[name="submit"]')
+    await page.click('button[name="submit"]')
+    await page.waitForResponse(
+      (response) =>
+        response.url() === 'http://localhost:8080/books/1' &&
+        response.request().method() === 'GET' &&
+        response.status() === 200
     )
-  )
-  browser.close()
+
+    await page.waitForSelector('.reviews-container')
+    const reviews = await page.evaluate(() => {
+      return [...document.querySelectorAll('.review')].map((el) => {
+        return el.innerText
+      })
+    })
+
+    expect(reviews.length).toEqual(1)
+    expect(reviews[0]).toEqual('Good book')
+  })
+
+  afterEach(() => {
+    return axios
+      .delete('http://localhost:8080/books?_cleanup=true')
+      .catch((err) => err)
+  })
+
+  afterAll(async () => {
+    browser.close()
+  })
 })

@@ -30,7 +30,7 @@ export default class BookListPage {
       return [...document.querySelectorAll('.book .title')].map(
         (el) => el.innerText
       )
-    }) 
+    })
     return books
   }
 

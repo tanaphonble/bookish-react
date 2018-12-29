@@ -45,9 +45,12 @@ describe('Actions', () => {
       { type: types.FETCH_BOOKS_PENDING },
       { type: types.FETCH_BOOKS_FAILED, error: 'Something went wrong' }
     ]
-    const store = mockStore({ list: { books: [] } })
+    const store = mockStore({ list: { books: [], term: '' } })
 
     return store.dispatch(actions.fetchBooks()).then(() => {
+      expect(axios.get).toHaveBeenCalledWith(
+        `http://localhost:8080/books?_sort=id&q=`
+      )
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
@@ -71,7 +74,25 @@ describe('Actions', () => {
 
     return store.dispatch(actions.fetchBooks()).then(() => {
       expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:8080/books?q=domain'
+        'http://localhost:8080/books?_sort=id&q=domain'
+      )
+    })
+  })
+
+  it('Save a review for a book', () => {
+    const review = {
+      name: 'Ble',
+      content: 'Good book'
+    }
+    axios.post = jest.fn().mockImplementation(() => Promise.resolve({}))
+
+    const store = mockStore({ list: { books: [], term: '' } })
+
+    store.dispatch(actions.saveReview(1, review)).then(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://localhost:8080/books/1/reviews',
+        JSON.stringify(review),
+        { headers: { 'Content-Type': 'application/json' } }
       )
     })
   })

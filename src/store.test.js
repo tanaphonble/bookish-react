@@ -28,7 +28,7 @@ describe('Store', () => {
       const state = store.getState()
       expect(state.list.term).toEqual('domain')
       expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:8080/books?q=domain'
+        'http://localhost:8080/books?_sort=id&q=domain'
       )
     })
   })
