@@ -1,4 +1,5 @@
 import React from 'react'
+import './index.css'
 
 function SearchBox({ onChange, term }) {
   return (

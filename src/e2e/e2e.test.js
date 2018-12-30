@@ -3,7 +3,6 @@ import axios from 'axios'
 
 import BookListPage from './pages/BookListPage'
 import BookDetailPage from './pages/BookDetailPage'
-import { resolve } from 'dns'
 
 const appUrlBase = 'http://localhost:3000'
 

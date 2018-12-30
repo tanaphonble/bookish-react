@@ -27,31 +27,44 @@ class BookDetail extends Component {
     })
   }
 
+  renderReviewList = () => {
+    const { book } = this.props
+    if (book.reviews) {
+      return <ReviewList reviews={book.reviews} />
+    }
+  }
+
+  renderReviewForm = () => {
+    return (
+      <form>
+        <input
+          type="text"
+          name="name"
+          onChange={this.updateName}
+          value={this.state.name}
+        />
+        <textarea
+          name="content"
+          cols="30"
+          rows="10"
+          onChange={this.updateContent}
+          value={this.state.content}
+        />
+        <button name="submit" onClick={this.saveReview}>
+          Submit
+        </button>
+      </form>
+    )
+  }
+
   render() {
     const { book } = this.props
     return (
       <div className="datail">
         <div className="name">{book.name}</div>
         <div className="description">{book.description || book.name}</div>
-        <form>
-          <input
-            type="text"
-            name="name"
-            onChange={this.updateName}
-            value={this.state.name}
-          />
-          <textarea
-            name="content"
-            cols="30"
-            rows="10"
-            onChange={this.updateContent}
-            value={this.state.content}
-          />
-          <button name="submit" onClick={this.saveReview}>
-            Submit
-          </button>
-        </form>
-        {book.reviews && <ReviewList reviews={book.reviews} />}
+        {this.renderReviewForm()}
+        {this.renderReviewList()}
       </div>
     )
   }

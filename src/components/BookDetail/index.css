@@ -14,3 +14,29 @@ h2 {
   color: limegreen;
   text-decoration: none;
 }
+
+.name {
+  font-weight: bold;
+  font-size: 40px;
+}
+
+input[name="name"], textarea[name="content"] {
+  width: 300px;
+  display: block;
+  margin: 10px 0;
+}
+
+input[name="name"] {
+  line-height: 20px;
+}
+
+button[name="submit"] {
+  background: limegreen;
+  border-radius: 0;
+  color: white;
+  border: none;
+  width: 200px;
+  height: 40px;
+  font-weight: bold;
+  font-size: 20px;
+}
