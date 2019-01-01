@@ -96,4 +96,27 @@ describe('Actions', () => {
       )
     })
   })
+
+  it('Update a review for a book', () => {
+    const config = {
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    const review = {
+      name: 'Ble',
+      content: 'Good book'
+    }
+
+    axios.put = jest.fn().mockImplementation(() => Promise.resolve({}))
+
+    const store = mockStore({ list: { books: [], term: '' } })
+
+    return store.dispatch(actions.updateReview(1, review)).then(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        'http://localhost:8080/reviews/1',
+        JSON.stringify(review),
+        config
+      )
+    })
+  })
 })

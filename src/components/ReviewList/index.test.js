@@ -1,6 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 import ReviewList from '.'
+import Review from './Review'
 
 describe('ReviewList', () => {
   it('Empty list', () => {
@@ -15,19 +16,21 @@ describe('ReviewList', () => {
     const props = {
       reviews: [
         {
-          name: 'Test Driven Development',
+          id: 1,
+          name: 'Ble',
           date: '2018/12/28',
           content: 'What a good book'
         },
-        { name: 'Javascript', date: '2018/12/28', content: 'Good book' }
+        {
+          id: 2,
+          name: 'Javascript',
+          date: '2018/12/28',
+          content: 'Good book'
+        }
       ]
     }
 
     const wrapper = shallow(<ReviewList {...props} />)
-    expect(wrapper.find('.reviews-container').length).toBe(1)
-    expect(wrapper.find('.review').length).toBe(2)
-
-    const firstReview = wrapper.find('.review').at(0)
-    expect(firstReview.text()).toEqual('What a good book')
+    expect(wrapper.find(Review).length).toBe(2)
   })
 })

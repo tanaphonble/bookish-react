@@ -2,7 +2,7 @@ import pupeeteer from 'puppeteer'
 import axios from 'axios'
 
 import BookListPage from './pages/BookListPage'
-import BookDetailPage from './pages/BookDetailPage'
+import DetailPage from './pages/DetailPage'
 
 const appUrlBase = 'http://localhost:3000'
 
@@ -46,21 +46,11 @@ describe('Bookish', () => {
   })
 
   test('Goto book detail page', async () => {
-    await page.goto(`${appUrlBase}/`)
-    const listPage = new BookListPage(page)
-    const links = await listPage.getBookDetailLinks()
+    const detailPage = new DetailPage(browser, 1)
+    await detailPage.initialize()
 
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2' }),
-      page.goto(`${appUrlBase}${links[0]}`)
-    ])
-
-    const url = await page.evaluate('location.href')
-    expect(url).toEqual(`${appUrlBase}/books/1`)
-
-    const detailPage = new BookDetailPage(page)
-    const description = await detailPage.getDescription()
-    expect(description).toEqual('Refactoring')
+    const desc = await detailPage.getDescription()
+    expect(desc).toEqual('Refactoring')
   })
 
   test('Show books which name contains keyword', async () => {
@@ -73,53 +63,18 @@ describe('Bookish', () => {
   })
 
   test('Write a review for a book', async () => {
-    await page.goto(`${appUrlBase}/`)
-    await page.waitForSelector('a.view-detail')
+    const detailPage = new DetailPage(browser, 1)
+    await detailPage.initialize()
 
-    const links = await page.evaluate(() => {
-      return [...document.querySelectorAll('a.view-detail')].map((el) =>
-        el.getAttribute('href')
-      )
-    })
+    const review = {
+      name: 'Ble',
+      content: 'Good book'
+    }
 
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2' }),
-      page.goto(`${appUrlBase}${links[0]}`)
-    ])
+    await detailPage.addReview(review)
 
-    const url = await page.evaluate('location.href')
-    expect(url).toEqual(`${appUrlBase}/books/1`)
-
-    await page.waitForSelector('.description')
-    const result = await page.evaluate(() => {
-      return document.querySelector('.description').innerText
-    })
-    expect(result).toEqual('Refactoring')
-
-    await page.waitForSelector('input[name="name"]')
-    await page.type('input[name="name"]', 'Ble')
-
-    await page.waitForSelector('textarea[name="content"]')
-    await page.type('textarea[name="content"]', 'Good book')
-
-    await page.waitForSelector('button[name="submit"]')
-    await page.click('button[name="submit"]')
-    await page.waitForResponse(
-      (response) =>
-        response.url() === 'http://localhost:8080/books/1' &&
-        response.request().method() === 'GET' &&
-        response.status() === 200
-    )
-
-    await page.waitForSelector('.reviews-container')
-    const reviews = await page.evaluate(() => {
-      return [...document.querySelectorAll('.review')].map((el) => {
-        return el.innerText
-      })
-    })
-
-    expect(reviews.length).toEqual(1)
-    expect(reviews[0]).toEqual('Good book')
+    const result = await detailPage.getReview(0)
+    expect(result).toEqual('Good book')
   })
 
   afterEach(() => {

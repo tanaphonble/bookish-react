@@ -55,3 +55,25 @@ export const saveReview = (id, review) => {
       })
   }
 }
+
+export const updateReview = (id, review) => {
+  const config = {
+    headers: { 'Content-Type': 'application/json' }
+  }
+
+  return (dispatch) => {
+    dispatch({ type: types.SAVE_BOOK_REVIEW_PENDING })
+    return axios
+      .put(
+        `http://localhost:8080/reviews/${id}`,
+        JSON.stringify(review),
+        config
+      )
+      .then((res) => {
+        dispatch({ type: types.SAVE_BOOK_REVIEW_SUCCESS, payload: res.data })
+      })
+      .catch((err) => {
+        dispatch({ type: types.SAVE_BOOK_REVIEW_FAILED, error: err })
+      })
+  }
+}
